@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Email Ingérable Ordonné</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+
+    /* ====== ARRIÈRE-PLAN AJOUTÉ ====== */
+    background-image: url("NIRD_final_vert_transp-1.png");
+    background-size: cover;        /* l’image couvre toute la page */
+    background-repeat: no-repeat;  /* pas de répétition */
+    background-position: center;   /* centrée */
+    background-attachment: fixed;  /* effet légèrement "parallaxe" */
+    /* ================================= */
+
+    padding: 30px;
+    text-align: center;
+  }
+
+  h2 {
+    margin-bottom: 15px;
+    color: #333;
+  }
+
+  label {
+    font-weight: bold;
+    margin-right: 10px;
+  }
+
+  input[type="number"] {
+    padding: 5px 8px;
+    font-size: 13px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 50px;
+  }
+
+  button {
+    padding: 4px 8px;
+    margin: 1px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background: #333;
+    color: white;
+    transition: 0.2s;
+    font-size: 11px;
+  }
+
+  button:hover {
+    background: #555;
+  }
+
+  #charBoxes {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 4px;
+    margin-top: 15px;
+    justify-content: center;
+  }
+
+  .box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .letterBox {
+    width: 30px;
+    height: 30px;
+    border: 2px solid #333;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    margin-bottom: 2px;
+  }
+
+  #finalEmail {
+    margin-top: 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: green;
+  }
+
+  #validateBtn {
+    margin-top: 12px;
+    padding: 6px 12px;
+    background: #5cb85c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  #validateBtn:hover {
+    background: #4cae4c;
+  }
+</style>
+</head>
+<body>
+
+<h2>Champ Email Ordonné 😈</h2>
+
+<label>Longueur de votre email :</label>
+<input type="number" id="emailLength" min="1" max="60">
+<button onclick="generateBoxes()">Créer</button>
+
+<div id="charBoxes"></div>
+<div id="finalEmail"></div>
+<button id="validateBtn" onclick="alertFinalEmail()">Valider l'email</button>
+
+<script>
+const orderedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@._-";
+let intervals = [];
+let indices = [];
+
+function generateBoxes() {
+  const length = document.getElementById("emailLength").value;
+  const container = document.getElementById("charBoxes");
+  container.innerHTML = "";
+  intervals.forEach(clearInterval);
+  intervals = [];
+  indices = [];
+  document.getElementById("finalEmail").innerHTML = "";
+
+  for (let i = 0; i < length; i++) {
+    const box = document.createElement("div");
+    box.className = "box";
+
+    const letterBox = document.createElement("div");
+    letterBox.className = "letterBox";
+
+    startScroll(i, letterBox);
+
+    const stopBtn = document.createElement("button");
+    stopBtn.textContent = "Stop";
+    stopBtn.onclick = () => stopScroll(i);
+
+    const restartBtn = document.createElement("button");
+    restartBtn.textContent = "Changer";
+    restartBtn.onclick = () => restartScroll(i, letterBox);
+
+    box.appendChild(letterBox);
+    box.appendChild(stopBtn);
+    box.appendChild(restartBtn);
+
+    container.appendChild(box);
+  }
+}
+
+function startScroll(index, element) {
+  indices[index] = 0;
+  intervals[index] = setInterval(() => {
+    element.textContent = orderedChars[indices[index]];
+    indices[index]++;
+    if (indices[index] >= orderedChars.length) {
+      indices[index] = 0;
+    }
+  }, 300);
+}
+
+function stopScroll(index) {
+  clearInterval(intervals[index]);
+  intervals[index] = null;
+  checkFinalEmail();
+}
+
+function restartScroll(index, element) {
+  if (intervals[index] === null) {
+    startScroll(index, element);
+  }
+}
+
+function checkFinalEmail() {
+  if (intervals.every(i => i === null)) {
+    buildEmail();
+  }
+}
+
+function buildEmail() {
+  const chars = document.querySelectorAll(".letterBox");
+  let email = "";
+  chars.forEach(c => email += c.textContent);
+  document.getElementById("finalEmail").innerHTML = "Email obtenu : " + email;
+}
+
+function alertFinalEmail() {
+  const emailText = document.getElementById("finalEmail").textContent;
+  if(emailText) {
+    alert("Email final : " + emailText.replace("Email obtenu : ", ""));
+  } else {
+    alert("Veuillez d'abord arrêter toutes les lettres pour générer l'email !");
+  }
+}
+</script>
+
+</body>
+</html>
+
+
+
